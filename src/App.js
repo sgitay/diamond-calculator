@@ -3,10 +3,7 @@ import { ReactiveBase, SingleDropdownList } from '@appbaseio/reactivesearch';
 import Appbase from 'appbase-js';
 import filter from 'lodash/filter';
 import round from 'lodash/round';
-// import trim from 'lodash/trim';
-// import currencyFormatter from 'currency-formatter';
 import NumberFormat from 'react-number-format';
-
 import toNumber from 'lodash/toNumber';
 import {
   AppbaseApp,
