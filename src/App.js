@@ -4,7 +4,9 @@ import Appbase from 'appbase-js';
 import filter from 'lodash/filter';
 import round from 'lodash/round';
 // import trim from 'lodash/trim';
-import currencyFormatter from 'currency-formatter';
+// import currencyFormatter from 'currency-formatter';
+import NumberFormat from 'react-number-format';
+
 import toNumber from 'lodash/toNumber';
 import {
   AppbaseApp,
@@ -49,8 +51,9 @@ class App extends Component {
       isLoading: false,
       activeInputField: '',
       initialRendering: true,
-      userEnteredWeight: 0,
-      checkBoxStatus: false
+      userEnteredWeight: '',
+      checkBoxStatus: false,
+      weightInclude: false
     };
 
     this.handleColorDropdownChange = this.handleColorDropdownChange.bind(this);
@@ -70,27 +73,93 @@ class App extends Component {
     this.handleCheckBoxStatusChange = this.handleCheckBoxStatusChange.bind(
       this
     );
+    this.handleWeightChange = this.handleWeightChange.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    let { userEnteredWeight: prevUserEnteredWeight } = prevState;
-    let { userEnteredWeight, originalHits, color, clarity, shape } = this.state;
-    if (color && shape && clarity && userEnteredWeight) {
-      if (prevUserEnteredWeight !== userEnteredWeight) {
-        // Always filter original list
-        let newHits = filter(originalHits, o => {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    // console.log('prevState', prevState);
+    let {
+      userEnteredWeight,
+      originalHits,
+      color,
+      clarity,
+      shape,
+      weightInclude
+    } = prevState;
+
+    // if (color && shape && clarity && userEnteredWeight) {
+    //   let newHits = filter(originalHits, o => {
+    //     return (
+    //       Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
+    //       userEnteredWeight <= Number.parseFloat(o._source.toweight)
+    //     );
+    //   });
+    //   // If there is no any record found for given range,
+    //   // then use records from range `5-6`
+
+    //   if (!newHits.length) {
+    //     console.log('in condition');
+    //     newHits = filter(originalHits, o => {
+    //       return (
+    //         Number.parseFloat(o._source.fromweight) >= 5 &&
+    //         Number.parseFloat(o._source.toweight) <= 5.99
+    //       );
+    //     });
+    //     if (weightInclude && userEnteredWeight >= 10) {
+    //       console.log('userEnteredWeight', userEnteredWeight);
+    //       newHits = filter(originalHits, o => {
+    //         return (
+    //           Number.parseFloat(o._source.fromweight) >= 10 &&
+    //           Number.parseFloat(o._source.toweight) <= 10.99
+    //         );
+    //       });
+    //       console.log('10s hit', newHits);
+    //     }
+    //   }
+
+    //   // Return new state
+    //   return {
+    //     hits: newHits
+    //   };
+    // }
+ if (color && shape && clarity && userEnteredWeight) {
+      let newHits = filter(originalHits, o => {
+        return (
+          Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
+          userEnteredWeight <= Number.parseFloat(o._source.toweight)
+        );
+      });
+      // If there is no any record found for given range,
+      // then use records from range `5-6`
+      if (!newHits.length) {
+        newHits = filter(originalHits, o => {
           return (
-            Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
-            userEnteredWeight <= Number.parseFloat(o._source.toweight)
+            Number.parseFloat(o._source.fromweight) >= 5 &&
+            Number.parseFloat(o._source.toweight) <= 6
           );
         });
-        this.setState({
-          checkBoxStatus: false,
-          hits: newHits
-        });
-        console.log('hits', this.state.hits);
+          if (weightInclude && userEnteredWeight >= 10) {
+          console.log('userEnteredWeight', userEnteredWeight);
+          newHits = filter(originalHits, o => {
+            return (
+              Number.parseFloat(o._source.fromweight) >= 10 &&
+              Number.parseFloat(o._source.toweight) <= 10.99
+            );
+          });
+          console.log('10s hit', newHits);
+        }
+
       }
+
+      // Return new state
+      return {
+        hits: newHits
+      };
+
     }
+
+    // Return null to indicate no change to state.
+    return null;
   }
 
   handleColorDropdownChange(value) {
@@ -132,7 +201,8 @@ class App extends Component {
       activeInputField: 'WEIGHT'
     });
   }
-    mapOrder(array, order, key) {
+
+  mapOrder(array, order, key) {
     array.sort(function(a, b) {
       var A = a[key],
         B = b[key];
@@ -144,6 +214,7 @@ class App extends Component {
     });
     return array;
   }
+
   getPrice() {
     let { color, shape, clarity } = this.state;
 
@@ -216,6 +287,12 @@ class App extends Component {
       checkBoxStatus: e.target.checked
     });
   }
+  handleWeightChange(e) {
+    this.setState({
+      activeInputField: 'WEIGHT',
+      weightInclude: e.target.checked
+    });
+  }
   changeRelToList(e) {
     this.setState({
       activeInputField: 'REL_TO_LIST',
@@ -223,20 +300,19 @@ class App extends Component {
     });
   }
 
-  totalPriceChange(e) {
-    let total_pc = currencyFormatter.unformat(e.target.value, { code: 'USD' });
+  totalPriceChange(values) {
+    const { formattedValue, value } = values;
     this.setState({
       activeInputField: 'TOTAL_PRICE',
-      userEnteredTotalPc: total_pc
+      userEnteredTotalPc: value
     });
   }
 
-  sellPcChange(e) {
-    let sell_pc = currencyFormatter.unformat(e.target.value, { code: 'USD' });
-
+  sellPcChange(values) {
+    const { formattedValue, value } = values;
     this.setState({
       activeInputField: 'SELL_PRICE',
-      userEnteredSellPc: sell_pc
+      userEnteredSellPc: value
     });
   }
 
@@ -253,6 +329,7 @@ class App extends Component {
   }
 
   getSPWhenRelToListActive() {
+    console.log('getSPWhenRelToListActive');
     let { userEnteredRelToList, hits } = this.state;
     let sellPrice = 0;
     if (!hits.length) {
@@ -262,13 +339,15 @@ class App extends Component {
       return 0;
     }
     let listPrice = hits[0]._source.ppc;
-
+    // console.log('listPrice', listPrice);
     sellPrice =
       toNumber(listPrice) + toNumber(listPrice * (userEnteredRelToList / 100));
+    // console.log('SELL_PRICE', sellPrice);
     return round(sellPrice, 2);
   }
 
   getTPWhenRelToListActive() {
+    console.log('getTPWhenRelToListActive');
     let { hits, userEnteredWeight, userEnteredRelToList } = this.state;
     let totalPrice = 0;
     if (!hits.length) {
@@ -278,8 +357,10 @@ class App extends Component {
       return 0;
     }
     let listPrice = hits[0]._source.ppc;
+    // console.log('listPrice', listPrice);
     let sellPrice =
       toNumber(listPrice) + toNumber(listPrice * (userEnteredRelToList / 100));
+    // console.log('sellPriceREl', sellPrice);
     if (userEnteredWeight > 0) {
       totalPrice = sellPrice * userEnteredWeight;
     }
@@ -287,6 +368,7 @@ class App extends Component {
   }
 
   getRelToListWhenSPActive() {
+    console.log('getRelToListWhenSPActive');
     let { userEnteredSellPc = 0, hits } = this.state;
     let relToList = '';
     if (!hits.length) {
@@ -296,11 +378,13 @@ class App extends Component {
       return 0;
     }
     let listPrice = hits[0]._source.ppc;
+    // console.log('listPrice', listPrice);
     relToList = ((userEnteredSellPc - listPrice) / listPrice) * 100;
     return round(relToList, 2);
   }
 
   getTPWhenSPActive() {
+    console.log('getTPWhenSPActive');
     let { userEnteredSellPc = 0, userEnteredWeight, hits } = this.state;
     let totalPrice = '';
     if (!hits.length) {
@@ -315,7 +399,13 @@ class App extends Component {
   }
 
   getRelToListWhenTPActive() {
-    let { hits, userEnteredTotalPc, userEnteredWeight } = this.state;
+    console.log('getRelToListWhenTPActive');
+    let {
+      hits,
+      userEnteredTotalPc,
+      userEnteredWeight,
+      weightInclude
+    } = this.state;
     let relToList = 0;
     if (!hits.length) {
       return relToList;
@@ -323,19 +413,32 @@ class App extends Component {
     if (userEnteredTotalPc === '') {
       return 0;
     }
+    if (userEnteredWeight === '') {
+      return 0;
+    }
     let listPrice = hits[0]._source.ppc;
+    // console.log('listPrice', listPrice);
     let sellPrice = userEnteredTotalPc / userEnteredWeight;
+    // console.log('sellPriceaa', sellPrice);
     relToList = ((sellPrice - listPrice) / listPrice) * 100;
     return round(relToList, 2);
   }
 
   getSPWhenTPActive() {
-    let { userEnteredTotalPc, userEnteredWeight, hits } = this.state;
+    let {
+      userEnteredTotalPc,
+      userEnteredWeight,
+      hits,
+      weightInclude
+    } = this.state;
+    console.log('getSPWhenTPActive',hits);
+    let listPrice = hits[0] && hits[0]._source.ppc;
     let sellPrice = '';
     if (!hits.length) {
       return sellPrice;
     }
     sellPrice = userEnteredTotalPc / userEnteredWeight;
+    // console.log('sellPricessA', sellPrice);
     return round(sellPrice, 2);
   }
 
@@ -523,44 +626,40 @@ class App extends Component {
       hits,
       initialRendering,
       checkBoxStatus,
+      weightInclude,
       shape,
       color,
       clarity
     } = this.state;
-
-    const listPrice = this.getListPrice();
-    let list_price = currencyFormatter.format(listPrice, { code: 'USD' });
-
+    // console.log('checkBoxStatus', checkBoxStatus);
+    let listPrice = this.getListPrice();
     let relToList = 0;
     let sellPrice = listPrice; // initially SP is same as LP
-    let sell_price = currencyFormatter.format(sellPrice, { code: 'USD' });
+    console.log('render sellPrice', sellPrice);
     let totalPrice = listPrice * userEnteredWeight;
-    let total_price = currencyFormatter.format(totalPrice, { code: 'USD' });
+
     let weight = userEnteredWeight;
     switch (activeInputField) {
       case 'REL_TO_LIST':
+        console.log('REL_TO_LIST');
         relToList = userEnteredRelToList;
         sellPrice = this.getSPWhenRelToListActive();
-        sell_price = currencyFormatter.format(sellPrice, { code: 'USD' });
         totalPrice = this.getTPWhenRelToListActive();
-        total_price = currencyFormatter.format(totalPrice, { code: 'USD' });
         break;
 
       case 'SELL_PRICE':
+        console.log('SELL_PRICE');
         relToList = this.getRelToListWhenSPActive();
         sellPrice = userEnteredSellPc;
-        sell_price = currencyFormatter.format(sellPrice, { code: 'USD' });
         totalPrice = this.getTPWhenSPActive();
-        total_price = currencyFormatter.format(totalPrice, { code: 'USD' });
 
         break;
 
       case 'TOTAL_PRICE':
+        console.log('TOTAL_PRICE');
         relToList = this.getRelToListWhenTPActive();
         sellPrice = this.getSPWhenTPActive();
-        sell_price = currencyFormatter.format(sellPrice, { code: 'USD' });
         totalPrice = userEnteredTotalPc;
-        total_price = currencyFormatter.format(totalPrice, { code: 'USD' });
         break;
 
       default:
@@ -598,11 +697,12 @@ class App extends Component {
             <div className="outputColumns xs-device-set-margin">
               <h2 className="form-control-label">List Price</h2>
               {!checkBoxStatus ? (
-                <input
-                  className="form-control"
-                  type="text"
-                  value={list_price}
+                <NumberFormat
                   disabled
+                  value={listPrice}
+                  className="form-control"
+                  thousandSeparator={true}
+                  prefix={'$'}
                 />
               ) : (
                 ''
@@ -616,11 +716,12 @@ class App extends Component {
             <div className="outputColumns xs-device-set-margin">
               <h2 className="form-control-label">Sell Price</h2>
               {!checkBoxStatus ? (
-                <input
+                <NumberFormat
+                  value={sellPrice}
                   className="form-control"
-                  value={sell_price}
-                  type="text"
-                  onChange={this.sellPcChange}
+                  thousandSeparator={true}
+                  onValueChange={values => this.sellPcChange(values)}
+                  prefix={'$'}
                 />
               ) : (
                 ''
@@ -634,11 +735,12 @@ class App extends Component {
             <div className="outputColumns xs-device-set-margin">
               <h2 className="form-control-label">Total Price</h2>
               {!checkBoxStatus ? (
-                <input
+                <NumberFormat
+                  value={totalPrice}
                   className="form-control"
-                  value={total_price}
-                  type="text"
-                  onChange={this.totalPriceChange}
+                  thousandSeparator={true}
+                  onValueChange={values => this.totalPriceChange(values)}
+                  prefix={'$'}
                 />
               ) : (
                 ''
@@ -710,6 +812,14 @@ class App extends Component {
                     onChange={this.handleWeightInputChange}
                     value={weight}
                   />
+                  <label className="include-weight checkbox-inline">
+                    <input
+                      type="checkbox"
+                      value={weightInclude}
+                      onChange={this.handleWeightChange}
+                    />
+                    Include 10's weight range.
+                  </label>
                 </div>
                 <div className="inputColumns xs-device-set-margin">
                   <h2 className="form-control-label">Mark(%)</h2>

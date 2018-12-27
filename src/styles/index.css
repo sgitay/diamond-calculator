@@ -54,6 +54,11 @@ input {
   color: #424242;
   font-weight: 600;
 }
+.include-weight{
+  font-size:14px;
+  font-weight: 500;
+}
+
 #result-area {
   font-family: 'Open Sans', sans-serif;
   min-height: 120px;
