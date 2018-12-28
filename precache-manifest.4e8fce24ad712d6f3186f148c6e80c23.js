@@ -4,24 +4,24 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.f4769f9b.eot"
   },
   {
-    "revision": "689971acf66830dc8466",
-    "url": "/diamond-calculator/static/css/main.9f11f55f.chunk.css"
+    "revision": "edfb75deebfbfaf9dc9e",
+    "url": "/diamond-calculator/static/css/main.c5140efd.chunk.css"
   },
   {
     "revision": "89889688147bd7575d6327160d64e760",
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.89889688.svg"
   },
   {
-    "revision": "467281a1c3b3ac217161",
-    "url": "/diamond-calculator/static/js/1.467281a1.chunk.js"
+    "revision": "2490cf6d4211d4ad7d94",
+    "url": "/diamond-calculator/static/js/1.2490cf6d.chunk.js"
   },
   {
     "revision": "49453799b7068e37461d",
     "url": "/diamond-calculator/static/js/runtime~main.49453799.js"
   },
   {
-    "revision": "689971acf66830dc8466",
-    "url": "/diamond-calculator/static/js/main.689971ac.chunk.js"
+    "revision": "edfb75deebfbfaf9dc9e",
+    "url": "/diamond-calculator/static/js/main.edfb75de.chunk.js"
   },
   {
     "revision": "448c34a56d699c29117adc64c43affeb",
@@ -36,11 +36,11 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.e18bbf61.ttf"
   },
   {
-    "revision": "467281a1c3b3ac217161",
-    "url": "/diamond-calculator/static/css/1.9fe01f8c.chunk.css"
+    "revision": "2490cf6d4211d4ad7d94",
+    "url": "/diamond-calculator/static/css/1.535cc0a6.chunk.css"
   },
   {
-    "revision": "fd8a007a5000a585e10873c86a867f23",
+    "revision": "0c861e836878656d35da397aea06402b",
     "url": "/diamond-calculator/index.html"
   }
 ];
