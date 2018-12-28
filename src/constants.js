@@ -3,7 +3,7 @@ export const HOST_URL = 'https://scalr.api.appbase.io';
 // export const AppbaseApp = 'kwfl-rapnet-prices';
 // export const AppbaseAppCredential =
 //   'kg4GbKwx6:063eeb44-18e9-48c9-b5a0-4541d889597f';
-export const AppbaseApp = 'calculator-app';
+export const AppbaseApp = 'diamond-calculator-new';
 export const AppbaseAppCredential =
-  'O8OIAs7PU:2b14ce86-4bbf-4147-9139-ce465d2c7f16';
+  '131y35ZXg:f6efcdee-e0ad-4772-8836-502a1857f24e';
 export const AppbaseAppType = 'CalculatorData';

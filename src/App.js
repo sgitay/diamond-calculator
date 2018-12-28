@@ -3,7 +3,10 @@ import { ReactiveBase, SingleDropdownList } from '@appbaseio/reactivesearch';
 import Appbase from 'appbase-js';
 import filter from 'lodash/filter';
 import round from 'lodash/round';
+// import trim from 'lodash/trim';
+// import currencyFormatter from 'currency-formatter';
 import NumberFormat from 'react-number-format';
+import isEmpty from 'lodash/isEmpty';
 import toNumber from 'lodash/toNumber';
 import {
   AppbaseApp,
@@ -49,6 +52,7 @@ class App extends Component {
       activeInputField: '',
       initialRendering: true,
       userEnteredWeight: '',
+      userVal: 0,
       checkBoxStatus: false,
       weightInclude: false
     };
@@ -84,42 +88,7 @@ class App extends Component {
       weightInclude
     } = prevState;
 
-    // if (color && shape && clarity && userEnteredWeight) {
-    //   let newHits = filter(originalHits, o => {
-    //     return (
-    //       Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
-    //       userEnteredWeight <= Number.parseFloat(o._source.toweight)
-    //     );
-    //   });
-    //   // If there is no any record found for given range,
-    //   // then use records from range `5-6`
-
-    //   if (!newHits.length) {
-    //     console.log('in condition');
-    //     newHits = filter(originalHits, o => {
-    //       return (
-    //         Number.parseFloat(o._source.fromweight) >= 5 &&
-    //         Number.parseFloat(o._source.toweight) <= 5.99
-    //       );
-    //     });
-    //     if (weightInclude && userEnteredWeight >= 10) {
-    //       console.log('userEnteredWeight', userEnteredWeight);
-    //       newHits = filter(originalHits, o => {
-    //         return (
-    //           Number.parseFloat(o._source.fromweight) >= 10 &&
-    //           Number.parseFloat(o._source.toweight) <= 10.99
-    //         );
-    //       });
-    //       console.log('10s hit', newHits);
-    //     }
-    //   }
-
-    //   // Return new state
-    //   return {
-    //     hits: newHits
-    //   };
-    // }
- if (color && shape && clarity && userEnteredWeight) {
+    if (color && shape && clarity && userEnteredWeight) {
       let newHits = filter(originalHits, o => {
         return (
           Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
@@ -132,10 +101,10 @@ class App extends Component {
         newHits = filter(originalHits, o => {
           return (
             Number.parseFloat(o._source.fromweight) >= 5 &&
-            Number.parseFloat(o._source.toweight) <= 6
+            Number.parseFloat(o._source.toweight) <= 5.99
           );
         });
-          if (weightInclude && userEnteredWeight >= 10) {
+        if (weightInclude && userEnteredWeight >= 10) {
           console.log('userEnteredWeight', userEnteredWeight);
           newHits = filter(originalHits, o => {
             return (
@@ -145,14 +114,12 @@ class App extends Component {
           });
           console.log('10s hit', newHits);
         }
-
       }
 
       // Return new state
       return {
         hits: newHits
       };
-
     }
 
     // Return null to indicate no change to state.
@@ -290,10 +257,18 @@ class App extends Component {
       weightInclude: e.target.checked
     });
   }
+
   changeRelToList(e) {
+    let val = e.target.value;
+    console.log('e.target.value;', e.target.value);
+    if (isEmpty(val)) {
+      console.log('isEmpty');
+      val = 0;
+    }
     this.setState({
       activeInputField: 'REL_TO_LIST',
-      userEnteredRelToList: e.target.value
+      userEnteredRelToList: val,
+      userVal: e.target.value
     });
   }
 
@@ -326,7 +301,7 @@ class App extends Component {
   }
 
   getSPWhenRelToListActive() {
-    console.log('getSPWhenRelToListActive');
+    // console.log('getSPWhenRelToListActive');
     let { userEnteredRelToList, hits } = this.state;
     let sellPrice = 0;
     if (!hits.length) {
@@ -344,7 +319,7 @@ class App extends Component {
   }
 
   getTPWhenRelToListActive() {
-    console.log('getTPWhenRelToListActive');
+    // console.log('getTPWhenRelToListActive');
     let { hits, userEnteredWeight, userEnteredRelToList } = this.state;
     let totalPrice = 0;
     if (!hits.length) {
@@ -365,7 +340,7 @@ class App extends Component {
   }
 
   getRelToListWhenSPActive() {
-    console.log('getRelToListWhenSPActive');
+    // console.log('getRelToListWhenSPActive');
     let { userEnteredSellPc = 0, hits } = this.state;
     let relToList = '';
     if (!hits.length) {
@@ -381,7 +356,7 @@ class App extends Component {
   }
 
   getTPWhenSPActive() {
-    console.log('getTPWhenSPActive');
+    // console.log('getTPWhenSPActive');
     let { userEnteredSellPc = 0, userEnteredWeight, hits } = this.state;
     let totalPrice = '';
     if (!hits.length) {
@@ -396,14 +371,14 @@ class App extends Component {
   }
 
   getRelToListWhenTPActive() {
-    console.log('getRelToListWhenTPActive');
+    // console.log('getRelToListWhenTPActive');
     let {
       hits,
       userEnteredTotalPc,
       userEnteredWeight,
-      weightInclude
+      userEnteredRelToList
     } = this.state;
-    let relToList = 0;
+    let relToList = '';
     if (!hits.length) {
       return relToList;
     }
@@ -422,13 +397,8 @@ class App extends Component {
   }
 
   getSPWhenTPActive() {
-    let {
-      userEnteredTotalPc,
-      userEnteredWeight,
-      hits,
-      weightInclude
-    } = this.state;
-    console.log('getSPWhenTPActive',hits);
+    let { userEnteredTotalPc, userEnteredWeight, hits } = this.state;
+    // console.log('getSPWhenTPActive', hits);
     let listPrice = hits[0] && hits[0]._source.ppc;
     let sellPrice = '';
     if (!hits.length) {
@@ -626,35 +596,42 @@ class App extends Component {
       weightInclude,
       shape,
       color,
-      clarity
+      clarity,
+      userVal
     } = this.state;
-    // console.log('checkBoxStatus', checkBoxStatus);
+    // console.log('userEnteredRelToList', userEnteredRelToList);
     let listPrice = this.getListPrice();
-    let relToList = 0;
+    let relToList = '';
+    let relToList1 = '';
     let sellPrice = listPrice; // initially SP is same as LP
-    console.log('render sellPrice', sellPrice);
+    // console.log('render sellPrice', sellPrice);
     let totalPrice = listPrice * userEnteredWeight;
-
     let weight = userEnteredWeight;
+
     switch (activeInputField) {
       case 'REL_TO_LIST':
-        console.log('REL_TO_LIST');
+        // console.log('userVal',userVal)
+        // console.log('REL_TO_LIST');
         relToList = userEnteredRelToList;
+        relToList1 = isEmpty(userVal) ? userVal : userEnteredRelToList;
         sellPrice = this.getSPWhenRelToListActive();
         totalPrice = this.getTPWhenRelToListActive();
         break;
 
       case 'SELL_PRICE':
-        console.log('SELL_PRICE');
+        // console.log('SELL_PRICE');
         relToList = this.getRelToListWhenSPActive();
+        relToList1 = userVal > 0 ? this.getRelToListWhenSPActive() : userVal;
         sellPrice = userEnteredSellPc;
         totalPrice = this.getTPWhenSPActive();
 
         break;
 
       case 'TOTAL_PRICE':
-        console.log('TOTAL_PRICE');
+        // console.log('TOTAL_PRICE',this.getRelToListWhenTPActive());
+
         relToList = this.getRelToListWhenTPActive();
+        relToList1 = userVal > 0 ? this.getRelToListWhenTPActive() : userVal;
         sellPrice = this.getSPWhenTPActive();
         totalPrice = userEnteredTotalPc;
         break;
@@ -662,6 +639,7 @@ class App extends Component {
       default:
         break;
     }
+    // console.log(userVal,'relToList1',relToList1)
 
     let resultHtml = '';
     if (!initialRendering && !hits.length && userEnteredWeight !== '') {
@@ -670,9 +648,7 @@ class App extends Component {
       resultHtml = (
         <fieldset className="form-fieldset">
           <legend className="form-legend">Result:</legend>
-          {isLoading && (
-            <div className="App-Loader">Hang on, fetching results...</div>
-          )}
+          {isLoading && <div className="App-Loader">Fetching results...</div>}
 
           <div className="outputSectionRow">
             <div className="outputColumns xs-device-set-margin">
@@ -815,24 +791,26 @@ class App extends Component {
                       value={weightInclude}
                       onChange={this.handleWeightChange}
                     />
-                    Include 10's weight range.
+                    Use 10ct price list
                   </label>
                 </div>
                 <div className="inputColumns xs-device-set-margin">
                   <h2 className="form-control-label">Mark(%)</h2>
+                  {/*                    <input type="number" id="tentacles" name="tentacles"/>
+*/}{' '}
                   {userEnteredWeight && color && shape && clarity ? (
                     <input
                       type="number"
                       className="form-control"
                       onChange={this.changeRelToList}
-                      value={relToList}
+                      value={relToList1}
                     />
                   ) : (
                     <input
                       type="number"
                       className="form-control"
                       onChange={this.changeRelToList}
-                      value={relToList}
+                      value={relToList1}
                       disabled
                     />
                   )}
