@@ -1,7 +1,7 @@
 {
   "main.css": "/diamond-calculator/static/css/main.c5140efd.chunk.css",
-  "main.js": "/diamond-calculator/static/js/main.edfb75de.chunk.js",
-  "main.js.map": "/diamond-calculator/static/js/main.edfb75de.chunk.js.map",
+  "main.js": "/diamond-calculator/static/js/main.0bc10582.chunk.js",
+  "main.js.map": "/diamond-calculator/static/js/main.0bc10582.chunk.js.map",
   "static/css/1.535cc0a6.chunk.css": "/diamond-calculator/static/css/1.535cc0a6.chunk.css",
   "static/js/1.2490cf6d.chunk.js": "/diamond-calculator/static/js/1.2490cf6d.chunk.js",
   "static/js/1.2490cf6d.chunk.js.map": "/diamond-calculator/static/js/1.2490cf6d.chunk.js.map",
@@ -11,6 +11,6 @@
   "static/css/main.c5140efd.chunk.css.map": "/diamond-calculator/static/css/main.c5140efd.chunk.css.map",
   "static/css/1.535cc0a6.chunk.css.map": "/diamond-calculator/static/css/1.535cc0a6.chunk.css.map",
   "index.html": "/diamond-calculator/index.html",
-  "precache-manifest.4e8fce24ad712d6f3186f148c6e80c23.js": "/diamond-calculator/precache-manifest.4e8fce24ad712d6f3186f148c6e80c23.js",
+  "precache-manifest.e05897dd6373203e76f3f50e35e1cdc9.js": "/diamond-calculator/precache-manifest.e05897dd6373203e76f3f50e35e1cdc9.js",
   "service-worker.js": "/diamond-calculator/service-worker.js"
 }

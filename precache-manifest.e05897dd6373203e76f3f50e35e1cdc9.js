@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.f4769f9b.eot"
   },
   {
-    "revision": "edfb75deebfbfaf9dc9e",
+    "revision": "0bc105828040c765e84c",
     "url": "/diamond-calculator/static/css/main.c5140efd.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/js/runtime~main.49453799.js"
   },
   {
-    "revision": "edfb75deebfbfaf9dc9e",
-    "url": "/diamond-calculator/static/js/main.edfb75de.chunk.js"
+    "revision": "0bc105828040c765e84c",
+    "url": "/diamond-calculator/static/js/main.0bc10582.chunk.js"
   },
   {
     "revision": "448c34a56d699c29117adc64c43affeb",
@@ -40,7 +40,7 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/css/1.535cc0a6.chunk.css"
   },
   {
-    "revision": "0c861e836878656d35da397aea06402b",
+    "revision": "a4943d0011d9d7ba1036c8b652ef520c",
     "url": "/diamond-calculator/index.html"
   }
 ];
