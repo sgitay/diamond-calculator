@@ -89,6 +89,7 @@ class App extends Component {
     } = prevState;
 
     if (color && shape && clarity && userEnteredWeight) {
+
       let newHits = filter(originalHits, o => {
         return (
           Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
@@ -97,13 +98,9 @@ class App extends Component {
       });
       // If there is no any record found for given range,
       // then use records from range `5-6`
+      
       if (!newHits.length) {
-        newHits = filter(originalHits, o => {
-          return (
-            Number.parseFloat(o._source.fromweight) >= 5 &&
-            Number.parseFloat(o._source.toweight) <= 5.99
-          );
-        });
+        
         if (weightInclude && userEnteredWeight >= 10) {
           console.log('userEnteredWeight', userEnteredWeight);
           newHits = filter(originalHits, o => {
@@ -113,6 +110,15 @@ class App extends Component {
             );
           });
           console.log('10s hit', newHits);
+        }else if(userEnteredWeight >= 5){
+           
+            newHits = filter(originalHits, o => {
+            return (
+              Number.parseFloat(o._source.fromweight) >= 5 &&
+              Number.parseFloat(o._source.toweight) <= 5.99
+              );
+            });  
+          
         }
       }
 
