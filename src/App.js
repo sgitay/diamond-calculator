@@ -67,7 +67,6 @@ class App extends Component {
     // this.getPrice = this.getPrice.bind(this);
     // this.getSellPrice = this.getSellPrice.bind(this);
     // this.getRelToList = this.getRelToList.bind(this);
-
     this.totalPriceChange = this.totalPriceChange.bind(this);
     this.sellPcChange = this.sellPcChange.bind(this);
     this.handleWeightInputChange = this.handleWeightInputChange.bind(this);
@@ -89,6 +88,7 @@ class App extends Component {
     } = prevState;
 
     if (color && shape && clarity && userEnteredWeight) {
+
       let newHits = filter(originalHits, o => {
         return (
           Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
@@ -97,13 +97,11 @@ class App extends Component {
       });
       // If there is no any record found for given range,
       // then use records from range `5-6`
+      if(userEnteredWeight >= 10){
+        newHits.length=0;
+      }
       if (!newHits.length) {
-        newHits = filter(originalHits, o => {
-          return (
-            Number.parseFloat(o._source.fromweight) >= 5 &&
-            Number.parseFloat(o._source.toweight) <= 5.99
-          );
-        });
+
         if (weightInclude && userEnteredWeight >= 10) {
           console.log('userEnteredWeight', userEnteredWeight);
           newHits = filter(originalHits, o => {
@@ -113,6 +111,15 @@ class App extends Component {
             );
           });
           console.log('10s hit', newHits);
+        }else if(userEnteredWeight >= 5){
+
+            newHits = filter(originalHits, o => {
+            return (
+              Number.parseFloat(o._source.fromweight) >= 5 &&
+              Number.parseFloat(o._source.toweight) <= 5.99
+              );
+            });
+
         }
       }
 
@@ -252,10 +259,12 @@ class App extends Component {
     });
   }
   handleWeightChange(e) {
-    this.setState({
+      this.setState({
       activeInputField: 'WEIGHT',
       weightInclude: e.target.checked
     });
+
+
   }
 
   changeRelToList(e) {
@@ -340,8 +349,9 @@ class App extends Component {
   }
 
   getRelToListWhenSPActive() {
-    // console.log('getRelToListWhenSPActive');
+    console.log('getRelToListWhenSPActive');
     let { userEnteredSellPc = 0, hits } = this.state;
+    console.log('userEnteredSellPc RelACtive',userEnteredSellPc)
     let relToList = '';
     if (!hits.length) {
       return relToList;
@@ -352,6 +362,7 @@ class App extends Component {
     let listPrice = hits[0]._source.ppc;
     // console.log('listPrice', listPrice);
     relToList = ((userEnteredSellPc - listPrice) / listPrice) * 100;
+    console.log('getRelToListWhenSPActive',relToList);
     return round(relToList, 2);
   }
 
@@ -388,11 +399,13 @@ class App extends Component {
     if (userEnteredWeight === '') {
       return 0;
     }
+    console.log('userEnteredWeight Tp',userEnteredWeight)
     let listPrice = hits[0]._source.ppc;
     // console.log('listPrice', listPrice);
     let sellPrice = userEnteredTotalPc / userEnteredWeight;
     // console.log('sellPriceaa', sellPrice);
     relToList = ((sellPrice - listPrice) / listPrice) * 100;
+    console.log('relToList', relToList)
     return round(relToList, 2);
   }
 
@@ -607,31 +620,32 @@ class App extends Component {
     // console.log('render sellPrice', sellPrice);
     let totalPrice = listPrice * userEnteredWeight;
     let weight = userEnteredWeight;
-
+    console.log('userVal',userVal)
     switch (activeInputField) {
       case 'REL_TO_LIST':
         // console.log('userVal',userVal)
         // console.log('REL_TO_LIST');
         relToList = userEnteredRelToList;
-        relToList1 = isEmpty(userVal) ? userVal : userEnteredRelToList;
+        relToList1 = isEmpty(relToList) ? userVal : userEnteredRelToList;
         sellPrice = this.getSPWhenRelToListActive();
         totalPrice = this.getTPWhenRelToListActive();
         break;
 
       case 'SELL_PRICE':
-        // console.log('SELL_PRICE');
+        console.log('SELL_PRICE');
         relToList = this.getRelToListWhenSPActive();
-        relToList1 = userVal > 0 ? this.getRelToListWhenSPActive() : userVal;
+        relToList1 = isEmpty(relToList) ? this.getRelToListWhenSPActive():userVal ;
         sellPrice = userEnteredSellPc;
         totalPrice = this.getTPWhenSPActive();
+        console.log('relToList in case', relToList,'userVal',userVal)
 
         break;
 
       case 'TOTAL_PRICE':
-        // console.log('TOTAL_PRICE',this.getRelToListWhenTPActive());
+        console.log('TOTAL_PRICE',this.getRelToListWhenTPActive());
 
         relToList = this.getRelToListWhenTPActive();
-        relToList1 = userVal > 0 ? this.getRelToListWhenTPActive() : userVal;
+        relToList1 = isEmpty(relToList) ?  this.getRelToListWhenTPActive():userVal ;
         sellPrice = this.getSPWhenTPActive();
         totalPrice = userEnteredTotalPc;
         break;
@@ -795,9 +809,7 @@ class App extends Component {
                   </label>
                 </div>
                 <div className="inputColumns xs-device-set-margin">
-                  <h2 className="form-control-label">Mark(%)</h2>
-                  {/*                    <input type="number" id="tentacles" name="tentacles"/>
-*/}{' '}
+                  <h2 className="form-control-label">Rel to List</h2>
                   {userEnteredWeight && color && shape && clarity ? (
                     <input
                       type="number"
@@ -816,6 +828,7 @@ class App extends Component {
                   )}
                 </div>
               </div>
+
             </fieldset>
           </div>
 
