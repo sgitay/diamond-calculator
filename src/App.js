@@ -228,7 +228,7 @@ class App extends Component {
               ]
             }
           },
-          // size: 1,
+           size: 1000,
           _source: {
             includes: ['*'],
             excludes: []
