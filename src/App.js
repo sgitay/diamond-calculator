@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
-import { ReactiveBase, SingleDropdownList } from '@appbaseio/reactivesearch';
+import {
+  ReactiveBase,
+  SingleDropdownList,
+  SelectedFilters
+} from '@appbaseio/reactivesearch';
 import Appbase from 'appbase-js';
 import filter from 'lodash/filter';
 import round from 'lodash/round';
 // import trim from 'lodash/trim';
 // import currencyFormatter from 'currency-formatter';
-import NumberFormat from 'react-number-format';
+// import NumberFormat from 'react-number-format';
 import isEmpty from 'lodash/isEmpty';
 import toNumber from 'lodash/toNumber';
+// import CurrencyInput from 'react-currency-input';
+import Cleave from 'cleave.js/react';
 import {
   AppbaseApp,
   AppbaseAppCredential,
@@ -46,7 +52,7 @@ class App extends Component {
       hits: [],
       originalHits: [],
       userEnteredRelToList: 0,
-      userEnteredSellPc: 0,
+      userEnteredSellPc: '',
       userEnteredTotalPc: 0,
       isLoading: false,
       activeInputField: '',
@@ -67,6 +73,7 @@ class App extends Component {
     // this.getPrice = this.getPrice.bind(this);
     // this.getSellPrice = this.getSellPrice.bind(this);
     // this.getRelToList = this.getRelToList.bind(this);
+    this.clearAll = this.clearAll.bind(this);
     this.totalPriceChange = this.totalPriceChange.bind(this);
     this.sellPcChange = this.sellPcChange.bind(this);
     this.handleWeightInputChange = this.handleWeightInputChange.bind(this);
@@ -88,38 +95,34 @@ class App extends Component {
     } = prevState;
 
     if (color && shape && clarity && userEnteredWeight) {
-
       let newHits = filter(originalHits, o => {
         return (
-          Number.parseFloat(o._source.fromweight) <= userEnteredWeight &&
-          userEnteredWeight <= Number.parseFloat(o._source.toweight)
+          Number.parseFloat(o._source.fromweight) <= Number.parseFloat(userEnteredWeight).toFixed(2) &&
+          Number.parseFloat(userEnteredWeight).toFixed(2) <= Number.parseFloat(o._source.toweight)
         );
       });
       // If there is no any record found for given range,
       // then use records from range `5-6`
-      if(userEnteredWeight >= 10){
-        newHits.length=0;
+      if (userEnteredWeight >= 5) {
+        newHits.length = 0;
       }
       if (!newHits.length) {
-
-        if (weightInclude && userEnteredWeight >= 10) {
-          console.log('userEnteredWeight', userEnteredWeight);
+        if (weightInclude && Number.parseFloat(userEnteredWeight).toFixed(2) >= 10) {
+          // console.log('userEnteredWeight', userEnteredWeight);
           newHits = filter(originalHits, o => {
             return (
-              Number.parseFloat(o._source.fromweight) >= 10 &&
-              Number.parseFloat(o._source.toweight) <= 10.99
+              Number.parseFloat(o._source.fromweight).toFixed(2) >= 10 &&
+              Number.parseFloat(o._source.toweight).toFixed(2) <= 10.99
             );
           });
-          console.log('10s hit', newHits);
-        }else if(userEnteredWeight >= 5){
-
-            newHits = filter(originalHits, o => {
+          // console.log('10s hit', newHits);
+        } else if (Number.parseFloat(userEnteredWeight).toFixed(2) >= 5) {
+          newHits = filter(originalHits, o => {
             return (
-              Number.parseFloat(o._source.fromweight) >= 5 &&
-              Number.parseFloat(o._source.toweight) <= 5.99
-              );
-            });
-
+              Number.parseFloat(o._source.fromweight).toFixed(2) >= 5 &&
+              Number.parseFloat(o._source.toweight).toFixed(2) <= 5.99
+            );
+          });
         }
       }
 
@@ -167,12 +170,27 @@ class App extends Component {
   }
 
   handleWeightInputChange(e) {
+    console.log('handleWeightInputChange', e.target.value);
     this.setState({
       userEnteredWeight: e.target.value,
       activeInputField: 'WEIGHT'
     });
   }
+  clearAll() {
+    console.log('clearAll');
 
+    this.setState({
+      userEnteredWeight: '',
+      userEnteredRelToList: 0,
+      userEnteredSellPc: 0,
+      userEnteredTotalPc: 0,
+      userVal: 0,
+      isLoading:false,
+      activeInputField: '',
+      checkBoxStatus: false,
+      weightInclude: false
+    });
+  }
   mapOrder(array, order, key) {
     array.sort(function(a, b) {
       var A = a[key],
@@ -228,7 +246,7 @@ class App extends Component {
               ]
             }
           },
-           size: 1000,
+          size: 1000,
           _source: {
             includes: ['*'],
             excludes: []
@@ -237,6 +255,7 @@ class App extends Component {
         }
       })
       .then(response => {
+        console.log(response);
         this.setState({
           hits: response.hits.hits,
           originalHits: response.hits.hits,
@@ -249,7 +268,7 @@ class App extends Component {
           isLoading: false,
           initialRendering: false
         });
-        console.log('Error: ', error);
+        // console.log('Error: ', error);
       });
   }
 
@@ -259,19 +278,17 @@ class App extends Component {
     });
   }
   handleWeightChange(e) {
-      this.setState({
+    this.setState({
       activeInputField: 'WEIGHT',
       weightInclude: e.target.checked
     });
-
-
   }
 
   changeRelToList(e) {
     let val = e.target.value;
-    console.log('e.target.value;', e.target.value);
+    // console.log('e.target.value;', e.target.value);
     if (isEmpty(val)) {
-      console.log('isEmpty');
+      // console.log('isEmpty');
       val = 0;
     }
     this.setState({
@@ -281,19 +298,40 @@ class App extends Component {
     });
   }
 
-  totalPriceChange(values) {
-    const { formattedValue, value } = values;
+  totalPriceChange(e) {
+    // const { formattedValue, value } = values;
+    console.log('e.target.value', e.target.value);
+    let val1 = e.target.value;
+    console.log('val1', val1);
+    // console.log('sp value',value)
+    // let value, prifix;
+    let value = Number(val1.replace(/[$,]+/g, ''));
+    console.log('value', value);
+    let result = parseFloat(value);
+    console.log('result', result);
     this.setState({
       activeInputField: 'TOTAL_PRICE',
-      userEnteredTotalPc: value
+      userEnteredTotalPc: result
     });
   }
 
-  sellPcChange(values) {
-    const { formattedValue, value } = values;
+  sellPcChange(e) {
+    console.log('e.target.value', e.target.value);
+    let val1 = e.target.value;
+    console.log('val1', val1);
+    if(val1 =="$")
+    {
+      console.log('$ found')
+    }
+    let value = Number(val1.replace(/[$,]+/g, ''));
+
+    console.log('value', value);
+    let result = parseFloat(value);
+    console.log('result', result);
+
     this.setState({
       activeInputField: 'SELL_PRICE',
-      userEnteredSellPc: value
+      userEnteredSellPc: result
     });
   }
 
@@ -349,9 +387,9 @@ class App extends Component {
   }
 
   getRelToListWhenSPActive() {
-    console.log('getRelToListWhenSPActive');
+    // console.log('getRelToListWhenSPActive',userEnteredSellPc);
     let { userEnteredSellPc = 0, hits } = this.state;
-    console.log('userEnteredSellPc RelACtive',userEnteredSellPc)
+    console.log('userEnteredSellPc RelACtive', userEnteredSellPc);
     let relToList = '';
     if (!hits.length) {
       return relToList;
@@ -362,7 +400,7 @@ class App extends Component {
     let listPrice = hits[0]._source.ppc;
     // console.log('listPrice', listPrice);
     relToList = ((userEnteredSellPc - listPrice) / listPrice) * 100;
-    console.log('getRelToListWhenSPActive',relToList);
+    console.log('getRelToListWhenSPActive', relToList);
     return round(relToList, 2);
   }
 
@@ -377,7 +415,14 @@ class App extends Component {
       return 0;
     }
     //calculate total price
+    console.log(
+      'userEnteredSellPc',
+      userEnteredSellPc,
+      'userEnteredWeight',
+      userEnteredWeight
+    );
     totalPrice = userEnteredSellPc * userEnteredWeight;
+    console.log('totalPrice Tp Active', round(totalPrice, 2));
     return round(totalPrice, 2);
   }
 
@@ -386,8 +431,7 @@ class App extends Component {
     let {
       hits,
       userEnteredTotalPc,
-      userEnteredWeight,
-      userEnteredRelToList
+      userEnteredWeight
     } = this.state;
     let relToList = '';
     if (!hits.length) {
@@ -399,19 +443,19 @@ class App extends Component {
     if (userEnteredWeight === '') {
       return 0;
     }
-    console.log('userEnteredWeight Tp',userEnteredWeight)
+    // console.log('userEnteredWeight Tp',userEnteredWeight)
     let listPrice = hits[0]._source.ppc;
     // console.log('listPrice', listPrice);
     let sellPrice = userEnteredTotalPc / userEnteredWeight;
     // console.log('sellPriceaa', sellPrice);
     relToList = ((sellPrice - listPrice) / listPrice) * 100;
-    console.log('relToList', relToList)
+    // console.log('relToList', relToList)
     return round(relToList, 2);
   }
 
   getSPWhenTPActive() {
     let { userEnteredTotalPc, userEnteredWeight, hits } = this.state;
-    // console.log('getSPWhenTPActive', hits);
+    // console.log('getSPWhenTPActive');
     let listPrice = hits[0] && hits[0]._source.ppc;
     let sellPrice = '';
     if (!hits.length) {
@@ -611,20 +655,24 @@ class App extends Component {
       color,
       clarity,
       userVal
+      // prifix
     } = this.state;
     // console.log('userEnteredRelToList', userEnteredRelToList);
     let listPrice = this.getListPrice();
+    console.log('render lp',listPrice)
     let relToList = '';
-    let relToList1 = '';
+    let relToList1 = 0;
     let sellPrice = listPrice; // initially SP is same as LP
-    // console.log('render sellPrice', sellPrice);
-    let totalPrice = listPrice * userEnteredWeight;
+    console.log('weightInclude', weightInclude);
+    // console.log('sellPrice',sellPrice)
+    let totalPrice = round(listPrice * userEnteredWeight, 2);
+    // console.log('totalPrice',totalPrice)
     let weight = userEnteredWeight;
-    console.log('userVal',userVal)
+    console.log('activeInputField', activeInputField);
     switch (activeInputField) {
       case 'REL_TO_LIST':
-        // console.log('userVal',userVal)
-        // console.log('REL_TO_LIST');
+        console.log('REL_TO_LIST');
+        console.log('REL_TO_LIST');
         relToList = userEnteredRelToList;
         relToList1 = isEmpty(relToList) ? userVal : userEnteredRelToList;
         sellPrice = this.getSPWhenRelToListActive();
@@ -634,20 +682,25 @@ class App extends Component {
       case 'SELL_PRICE':
         console.log('SELL_PRICE');
         relToList = this.getRelToListWhenSPActive();
-        relToList1 = isEmpty(relToList) ? this.getRelToListWhenSPActive():userVal ;
-        sellPrice = userEnteredSellPc;
+        relToList1 = isEmpty(relToList)
+          ? this.getRelToListWhenSPActive()
+          : userVal;
         totalPrice = this.getTPWhenSPActive();
-        console.log('relToList in case', relToList,'userVal',userVal)
+        sellPrice = userEnteredSellPc;
+        console.log('userEnteredSellPc in case', userEnteredSellPc);
 
         break;
 
       case 'TOTAL_PRICE':
-        console.log('TOTAL_PRICE',this.getRelToListWhenTPActive());
+        console.log('TOTAL_PRICE userEnteredTotalPc');
 
         relToList = this.getRelToListWhenTPActive();
-        relToList1 = isEmpty(relToList) ?  this.getRelToListWhenTPActive():userVal ;
-        sellPrice = this.getSPWhenTPActive();
+        relToList1 = isEmpty(relToList)
+          ? this.getRelToListWhenTPActive()
+          : userVal;
         totalPrice = userEnteredTotalPc;
+        sellPrice = this.getSPWhenTPActive();
+
         break;
 
       default:
@@ -675,6 +728,7 @@ class App extends Component {
                     type="checkbox"
                     className="show-code-input"
                     id="ValueToCodeConvert"
+                    checked={checkBoxStatus}
                     onChange={this.handleCheckBoxStatusChange}
                   />
                   <span>Show Code</span>
@@ -684,12 +738,11 @@ class App extends Component {
             <div className="outputColumns xs-device-set-margin">
               <h2 className="form-control-label">List Price</h2>
               {!checkBoxStatus ? (
-                <NumberFormat
+                <Cleave
                   disabled
-                  value={listPrice}
                   className="form-control"
-                  thousandSeparator={true}
-                  prefix={'$'}
+                  value={listPrice}
+                  options={{ numeral: true, prefix: '$' }}
                 />
               ) : (
                 ''
@@ -702,13 +755,13 @@ class App extends Component {
             </div>
             <div className="outputColumns xs-device-set-margin">
               <h2 className="form-control-label">Sell Price</h2>
+
               {!checkBoxStatus ? (
-                <NumberFormat
-                  value={sellPrice}
+                <Cleave
                   className="form-control"
-                  thousandSeparator={true}
-                  onValueChange={values => this.sellPcChange(values)}
-                  prefix={'$'}
+                  value={sellPrice}
+                  options={{ numeral: true, prefix: '$' }}
+                  onChange={this.sellPcChange}
                 />
               ) : (
                 ''
@@ -721,13 +774,13 @@ class App extends Component {
             </div>
             <div className="outputColumns xs-device-set-margin">
               <h2 className="form-control-label">Total Price</h2>
+
               {!checkBoxStatus ? (
-                <NumberFormat
-                  value={totalPrice}
+                <Cleave
                   className="form-control"
-                  thousandSeparator={true}
-                  onValueChange={values => this.totalPriceChange(values)}
-                  prefix={'$'}
+                  value={totalPrice}
+                  options={{ numeral: true, prefix: '$' }}
+                  onChange={this.totalPriceChange}
                 />
               ) : (
                 ''
@@ -746,94 +799,118 @@ class App extends Component {
     return (
       <div className="container">
         <Header />
-        <ReactiveBase
-          app={AppbaseApp}
-          credentials={AppbaseAppCredential}
-          type={AppbaseAppType}
-        >
-          <div id="input-area">
-            <fieldset className="form-fieldset">
-              <legend className="form-legend">FillUp Details:</legend>
+        <form id="result-all">
+          <ReactiveBase
+            app={AppbaseApp}
+            credentials={AppbaseAppCredential}
+            type={AppbaseAppType}
+          >
+            <div id="input-area">
+              <fieldset className="form-fieldset">
+                <legend className="form-legend">FillUp Details:</legend>
 
-              <div className="inputSectionRow">
-                <div className="inputColumns xs-device-set-margin">
-                  <SingleDropdownList
-                    componentId="shape"
-                    className="reactive-form-control"
-                    dataField="shape.keyword"
-                    title="Shape"
-                    showCount={false}
-                    onValueChange={this.handleShapeDropdownChange}
-                  />
-                </div>
-                <div className="inputColumns xs-device-set-margin">
-                  <SingleDropdownList
-                    componentId="color"
-                    className="reactive-form-control"
-                    dataField="color.keyword"
-                    title="Color"
-                    showCount={false}
-                    onValueChange={this.handleColorDropdownChange}
-                  />
-                </div>
-                <div className="inputColumns xs-device-set-margin">
-                  <SingleDropdownList
-                    componentId="clarity"
-                    className="reactive-form-control"
-                    dataField="clarity.keyword"
-                    title="Clarity"
-                    showCount={false}
-                    transformData={list => {
-                      var ordered_array;
-                      ordered_array = this.mapOrder(list, item_order, 'key');
-                      return ordered_array;
-                    }}
-                    onValueChange={this.handleClarityDropdownChange}
-                  />
-                </div>
-                <div className="inputColumns">
-                  <h2 className="form-control-label">Weight</h2>
-                  <input
-                    type="number"
-                    className="form-control"
-                    onChange={this.handleWeightInputChange}
-                    value={weight}
-                  />
-                  <label className="include-weight checkbox-inline">
-                    <input
-                      type="checkbox"
-                      value={weightInclude}
-                      onChange={this.handleWeightChange}
+                <div className="inputSectionRow">
+                  <div className="inputColumns xs-device-set-margin">
+                    <SingleDropdownList
+                      componentId="shape"
+                      className="reactive-form-control"
+                      dataField="shape.keyword"
+                      title="Shape"
+                      showCount={false}
+                      onValueChange={this.handleShapeDropdownChange}
                     />
-                    Use 10ct price list
-                  </label>
-                </div>
-                <div className="inputColumns xs-device-set-margin">
-                  <h2 className="form-control-label">Rel to List</h2>
-                  {userEnteredWeight && color && shape && clarity ? (
+                  </div>
+                  <div className="inputColumns xs-device-set-margin">
+                    <SingleDropdownList
+                      componentId="color"
+                      className="reactive-form-control"
+                      dataField="color.keyword"
+                      title="Color"
+                      showCount={false}
+                      onValueChange={this.handleColorDropdownChange}
+                    />
+                  </div>
+                  <div className="inputColumns xs-device-set-margin">
+                    <SingleDropdownList
+                      componentId="clarity"
+                      className="reactive-form-control"
+                      dataField="clarity.keyword"
+                      title="Clarity"
+                      showCount={false}
+                      transformData={list => {
+                        var ordered_array;
+                        ordered_array = this.mapOrder(list, item_order, 'key');
+                        return ordered_array;
+                      }}
+                      onValueChange={this.handleClarityDropdownChange}
+                    />
+                  </div>
+                  <div className="inputColumns">
+                    <h2 className="form-control-label">Weight</h2>
                     <input
                       type="number"
                       className="form-control"
-                      onChange={this.changeRelToList}
-                      value={relToList1}
+                      onChange={this.handleWeightInputChange}
+                      value={weight}
                     />
-                  ) : (
-                    <input
-                      type="number"
-                      className="form-control"
-                      onChange={this.changeRelToList}
-                      value={relToList1}
-                      disabled
-                    />
-                  )}
+                    <label className="include-weight checkbox-inline">
+                      <input
+                        type="checkbox"
+                        checked={weightInclude}
+                        onChange={this.handleWeightChange}
+                      />
+                      Use 10ct price list
+                    </label>
+                  </div>
+                  <div className="inputColumns xs-device-set-margin">
+                    <h2 className="form-control-label">Rel to List</h2>
+                    {userEnteredWeight && color && shape && clarity ? (
+                      <input
+                        type="number"
+                        className="form-control"
+                        onChange={this.changeRelToList}
+                        value={relToList1}
+                      />
+                    ) : (
+                      <input
+                        type="number"
+                        className="form-control"
+                        onChange={this.changeRelToList}
+                        value={0}
+                        disabled
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
+              </fieldset>
+            </div>
 
-            </fieldset>
-          </div>
+            <div id="result-area">
+              {resultHtml}
+              <SelectedFilters
+                render={props => {
+                  const {
+                    clearAllLabel,
+                    clearValues
+                  } = props;
 
-          <div id="result-area">{resultHtml}</div>
-        </ReactiveBase>
+                  const reset = e => {
+                    e.preventDefault();
+                    console.log('reset');
+                    clearValues();
+                    this.clearAll();
+                  };
+
+                  const filters = (
+                    <button onClick={e => reset(e)}>{clearAllLabel}</button>
+                  );
+
+                  return filters;
+                }}
+              />
+            </div>
+          </ReactiveBase>
+        </form>
       </div>
     );
   }
