@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.f4769f9b.eot"
   },
   {
-    "revision": "86b61754cafc20b01ffa",
+    "revision": "a02cd7164f75822744e6",
     "url": "/diamond-calculator/static/css/main.c5140efd.chunk.css"
   },
   {
@@ -12,16 +12,16 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.89889688.svg"
   },
   {
-    "revision": "194f5d30f3bc1f38739d",
-    "url": "/diamond-calculator/static/js/1.194f5d30.chunk.js"
+    "revision": "35894e4097cc168407be",
+    "url": "/diamond-calculator/static/js/1.35894e40.chunk.js"
   },
   {
     "revision": "49453799b7068e37461d",
     "url": "/diamond-calculator/static/js/runtime~main.49453799.js"
   },
   {
-    "revision": "86b61754cafc20b01ffa",
-    "url": "/diamond-calculator/static/js/main.86b61754.chunk.js"
+    "revision": "a02cd7164f75822744e6",
+    "url": "/diamond-calculator/static/js/main.a02cd716.chunk.js"
   },
   {
     "revision": "448c34a56d699c29117adc64c43affeb",
@@ -36,11 +36,11 @@ self.__precacheManifest = [
     "url": "/diamond-calculator/static/media/glyphicons-halflings-regular.e18bbf61.ttf"
   },
   {
-    "revision": "194f5d30f3bc1f38739d",
+    "revision": "35894e4097cc168407be",
     "url": "/diamond-calculator/static/css/1.535cc0a6.chunk.css"
   },
   {
-    "revision": "37608883ece3393ed106bc181f403063",
+    "revision": "f73e4a15370c9abe8384a820ec51f105",
     "url": "/diamond-calculator/index.html"
   }
 ];

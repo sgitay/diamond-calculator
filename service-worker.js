@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/diamond-calculator/precache-manifest.a3b30ea30e7a16b2c13ca4739f5a2c19.js"
+  "/diamond-calculator/precache-manifest.72c81a2871fe690e5cdfeff94ffd7e5b.js"
 );
 
 workbox.clientsClaim();
